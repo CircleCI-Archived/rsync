@@ -1,0 +1,30 @@
+version: 2
+jobs:
+  build:
+    working_directory: /Users/marc/rsync
+    shell: /bin/bash
+    docker:
+      - image: marcomorain/centos:base
+    steps:
+      - checkout
+      - run: sed -i "s/centos\.org/hmc.edu/g" /etc/yum.conf
+      - run: rpm --import http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-3
+      - restore_cache:
+          key: yum-cache-
+      - run: yum -y install gcc
+      - save_cache:
+          paths:
+            - /var/cache/yum/
+          key: yum-cache-{{epoch}}
+      - run:
+          command: ./configure
+      - run:
+          command: make CFLAGS="-static" EXEEXT="-static"
+      - run:
+          command: strip rsync-static
+
+
+
+
+
+
